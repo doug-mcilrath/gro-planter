@@ -51,7 +51,7 @@ void setup() {
 
 String format_value(int val, int places, char fill) {
   String formatted = "";
-  int digits = floor(log(val));
+  int digits = floor(log(val)/log(10));
   for (int i = 0; i < places-digits-1; i++)
     formatted += fill;
   formatted += String(val);
@@ -70,19 +70,19 @@ String swap(String s, char c, int place)
   return swapped;
 }
 
-void getDigits(int val, int * arr) {
-  for (int i = 0; i < 4; i++) {
-    arr[i] = val % 10;
-    val = val / 10;
-  }
-}
-
 int getProd(int * arr) {
   int sum = 0;
   for (int i = 0; i < 4; i++) {
     sum += arr[i] * pow(10, i);
   }
   return sum;
+}
+
+int pow10(int e) {
+  int prod = 1;
+  for (int i = 0; i < e; i++)
+    prod *= 10;
+  return prod;
 }
 
 void loop() {
@@ -111,7 +111,6 @@ void loop() {
   // daily pump/light variables
   int light = 0;
   int pump = 0;
-
   int a;
 
   for(;;) {
@@ -136,9 +135,8 @@ void loop() {
     if (LIGHT_FORCE_ON)
       digitalWrite(LIGHT, HIGH);
     else {
-      if (a < 900) {
+      if (a < 900)
         digitalWrite(LIGHT, HIGH);
-      }
       else
         digitalWrite(LIGHT, LOW);
     }
@@ -165,22 +163,22 @@ void loop() {
         }
         // rotating settings display
         lcd.setCursor(0, 0);
-        if (counter < 40) {
+        if (counter < 60) {
           lcd.print("Light setting:   ");
           lcd.setCursor(0, 1);
           lcd.print(format_value(light, 2, ' ') + " hours / day   ");
         }
-        else if (counter < 80) {
+        else if (counter < 120) {
           lcd.print("Pump setting:    ");
           lcd.setCursor(0, 1);
           lcd.print(format_value(pump, 4, ' ') + " mL / day    ");
         }
-        else if (counter < 120) {
+        else if (counter < 160) {
           lcd.print("Press \"select\"  ");
           lcd.setCursor(0, 1);
           lcd.print("to edit settings ");
         }
-        else if (counter < 160) {
+        else if (counter < 200) {
           lcd.print("Press \"down\" to");
           lcd.setCursor(0, 1);
           lcd.print("manually control "); 
@@ -205,11 +203,11 @@ void loop() {
         }
         if (digitalRead(UP) == LOW && up) {
           up = false;
-          light += pow(10, place);
+          light += pow10(place);
         }
         if (digitalRead(DOWN) == LOW && down) {
           down = false;
-          light -= pow(10, place);
+          light -= pow10(place);
         }
         if (light > 24) light = 24;
         if (light < 0) light = 0;
@@ -221,7 +219,7 @@ void loop() {
         lcd.print(disp + " hours / day   ");
         lcd.setCursor(0, 1);
         if (counter < 40)
-          lcd.print("press \"select\" ");
+          lcd.print("press \"select\"  ");
         else if (counter < 80)
           lcd.print("to continue      ");
         else
@@ -246,11 +244,11 @@ void loop() {
         }
         if (digitalRead(UP) == LOW && up) {
           up = false;
-          pump += pow(10, place);
+          pump += pow10(place);
         }
         if (digitalRead(DOWN) == LOW && down) {
           down = false;
-          pump -= pow(10, place);
+          pump -= pow10(place);
         }
         
         if (pump > 9999) pump = 9999;
@@ -263,7 +261,7 @@ void loop() {
         lcd.print(disp + " mL / day  ");
         lcd.setCursor(0, 1);
         if (counter < 40)
-          lcd.print("press \"select\" ");
+          lcd.print("press \"select\"  ");
         else if (counter < 80)
           lcd.print("to continue      ");
         else
